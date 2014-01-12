@@ -47,7 +47,7 @@
 	var change_x=Math.floor(which/150);
 	var change_y=which%150;
 	var pos=arr[which];
-	colors2.slice(pos);
+	colors2.slice(colors2[pos],1);
 	var new_color=colors2[Math.floor(Math.random()*colors2.length)];
 	
 	ctx.fillStyle=new_color;
@@ -103,6 +103,7 @@
 			ctx.rect(change_x*6,change_y*6+930,6,6); 
 			ctx.stroke();
 		}
+		clearTimeout(time_out)
 		time_out=setTimeout("flash()",1000)
 	}
 	function stopTimeOut()
