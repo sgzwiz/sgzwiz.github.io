@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<body>
+<div>
+<canvas id="myCanvas" width=1850 height=900>
+</canvas>
+</div>
+<div><span id="xy">x=</span><input type="button" value="flash" onclick="flash()" /><input type="button" value="stop" onclick="stopTimeOut()" /></div>
+<script type="text/javascript">
+	var c=document.getElementById("myCanvas");
+	var ctx=c.getContext("2d");
+	var colors=["#ff6600","#ffffff","#ff0000","#00ff00","#0000ff","#ffff00"];
+	var colors2=["#ff6600","#ffffff","#ff0000","#00ff00","#0000ff","#ffff00"];
+	var arr = new Array(22500);
+	for(var row=0;row<150;row++)
+	{
+		for(var col=0;col<300;col++)
+		{
+			var x=col*6;
+			var y=row*6;
+			
+			ctx.beginPath();
+
+			if(x<900)
+			{
+				var clr = Math.floor(Math.random()*colors.length);
+				ctx.fillStyle=colors[clr];
+				arr[row*150+col]=clr;
+			}
+			else
+			{
+				x+=30;
+				ctx.fillStyle=colors[arr[row*150+col-150]];
+			}
+			ctx.fillRect(x,y,6,6); 
+			
+			
+			ctx.lineWidth="1";
+			ctx.strokeStyle="black";
+			ctx.rect(x,y,6,6); 
+			ctx.stroke();
+		}
+	}
+	
+	var which=Math.floor(Math.random()*22500);
+	var old_color=colors[which];
+	var change_x=Math.floor(which/150);
+	var change_y=which%150;
+	var pos=arr[which];
+	colors2.slice(pos);
+	var new_color=colors2[Math.floor(Math.random()*colors2.length)];
+	
+	ctx.fillStyle=new_color;
+	ctx.fillRect(change_x,change_y,6,6); 
+
+	ctx.lineWidth="1";
+	ctx.strokeStyle="black";
+	ctx.rect(change_x,change_y,6,6); 
+	ctx.stroke();
+	document.getElementById("xy").innerText="x="+change_x+", y="+change_y;
+	
+	var blank=1;
+	var time_out;
+	function flash()
+	{
+		if(blank==1)
+		{
+			blank=0;
+			ctx.strokeStyle="#ffffff";
+			ctx.lineWidth="1";
+			ctx.moveTo(0,change_y*6)
+			ctx.lineTo(900,change_y*6);
+
+			ctx.moveTo(930,change_y*6)
+			ctx.lineTo(1830,change_y*6);
+			
+			ctx.moveTo(change_x*6,0)
+			ctx.lineTo(change_x*6,900);
+
+			ctx.moveTo(change_x*6+930,0)
+			ctx.lineTo(change_x*6+930,900);
+
+			ctx.stroke();
+
+			ctx.fillStyle=new_color;
+			ctx.fillRect(change_x*6,change_y*6,6,6); 
+			ctx.fillStyle=old_color;
+			ctx.fillRect(change_x*6,change_y*6+930,6,6); 
+			//ctx.rect(change_x*6,change_y*6,6,6); 
+			//ctx.rect(change_x*6,change_y*6+930,6,6);
+		}
+		else
+		{
+			blank=1;
+			ctx.fillStyle=new_color;
+			ctx.fillRect(change_x*6,change_y*6,6,6); 
+			ctx.fillStyle=old_color;
+			ctx.fillRect(change_x*6,change_y*6+930,6,6); 
+
+			ctx.lineWidth="1";
+			ctx.strokeStyle="black";
+			ctx.rect(change_x*6,change_y*6,6,6); 
+			ctx.rect(change_x*6,change_y*6+930,6,6); 
+			ctx.stroke();
+		}
+		time_out=setTimeout("flash()",1000)
+	}
+	function stopTimeOut()
+	{
+		clearTimeout(time_out)
+	}
+</script>
+</body>
+</html>
