@@ -10,7 +10,7 @@
 <canvas id="myCanvas" width=1850 height=900>
 </canvas>
 </div>
-<div><span id="xy">x=</span><input type="button" value="flash" onclick="flash()" /><input type="button" value="stop" onclick="stopTimeOut()" /><span>点击flash按钮，将闪烁位置。点击stop按钮，将停止闪烁。</span></div>
+<div align="center"><input type="button" value="flash" onclick="flash()" /><input type="button" value="stop" onclick="stopTimeOut()" /><br/></><span>点击flash按钮，将闪烁变动的所在位置。点击stop按钮，将停止闪烁。源码可直接查看浏览器中的源码。按浏览器的刷新按钮，会自动生成其他图像。建议在分辨率1920×1200的浏览器中使用。</span></div>
 <script type="text/javascript">
 	var c=document.getElementById("myCanvas");
 	var ctx=c.getContext("2d");
@@ -62,7 +62,6 @@
 	ctx.strokeStyle="black";
 	ctx.rect(change_x,change_y,6,6); 
 	ctx.stroke();
-	document.getElementById("xy").innerText="x="+change_x+", y="+change_y;
 	
 	var blank=1;
 	var time_out;
@@ -91,8 +90,6 @@
 			ctx.fillRect(change_x*6,change_y*6,6,6); 
 			ctx.fillStyle=old_color;
 			ctx.fillRect(change_x*6,change_y*6+930,6,6); 
-			//ctx.rect(change_x*6,change_y*6,6,6); 
-			//ctx.rect(change_x*6,change_y*6+930,6,6);
 		}
 		else
 		{
