@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>demo by sgzwiz</title>
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+<body>
+<div align="center">
+<canvas id="myCanvas" width=1850 height=900>
+</canvas>
+<script type="text/javascript">
+var d = document.getElementById("myCanvas");
+var cxt = d.getContext("2d");
+var tx = 250;
+var ty = 250;
+//要考虑到立方体的长宽，所以要把坐标原点转移
+cxt.translate(tx, ty);
+//ｈｔｍｌ５中ｓｃａｌｅ的意思是成倍变化，所以这里是，
+//y坐标方向变反。成为标准的笛卡尔坐标
+cxt.scale(1, -1);
+function getRandom(a, b) {
+    return (a + Math.floor(Math.random() * (b - a + 1)))
+}
+var Points = [];
+var drawRect = function() {
+    cxt.strokeStyle = "#000";
+    cxt.beginPath();
+    //画正方体得到步骤是,先把上下两面的正方形画出来，然后画中间的
+    //四条直线
+    cxt.moveTo(Points[0].x, Points[0].y);
+    cxt.lineTo(Points[1].x, Points[1].y);
+    cxt.lineTo(Points[2].x, Points[2].y);
+    cxt.lineTo(Points[3].x, Points[3].y);
+    cxt.lineTo(Points[0].x, Points[0].y);
+    cxt.moveTo(Points[4].x, Points[4].y);
+    cxt.lineTo(Points[5].x, Points[5].y);
+    cxt.lineTo(Points[6].x, Points[6].y);
+    cxt.lineTo(Points[7].x, Points[7].y);
+    cxt.lineTo(Points[4].x, Points[4].y);
+    cxt.moveTo(Points[1].x, Points[1].y);
+    cxt.lineTo(Points[5].x, Points[5].y);
+    cxt.moveTo(Points[0].x, Points[0].y);
+    cxt.lineTo(Points[4].x, Points[4].y);
+    cxt.moveTo(Points[2].x, Points[2].y);
+    cxt.lineTo(Points[6].x, Points[6].y);
+    cxt.moveTo(Points[3].x, Points[3].y);
+    cxt.lineTo(Points[7].x, Points[7].y);
+    cxt.stroke();
+}
+//这里利用的是空间向量。大体就那个意思
+var Matrix4 = function(n11, n12, n13, n14, n21, n22, n23, n24, n31, n32, n33, n34, n41, n42, n43, n44) {
+    this.set(
+    n11 || 1, n12 || 0, n13 || 0, n14 || 0, n21 || 0, n22 || 1, n23 || 0, n24 || 0, n31 || 0, n32 || 0, n33 || 1, n34 || 0, n41 || 0, n42 || 0, n43 || 0, n44 || 1);
+}
+Matrix4.prototype = {
+    set: function(n11, n12, n13, n14, n21, n22, n23, n24, n31, n32, n33, n34, n41, n42, n43, n44) {
+        this.n11 = n11;
+        this.n12 = n12;
+        this.n13 = n13,
+        this.n14 = n14;
+        this.n21 = n21;
+        this.n22 = n22;
+        this.n23 = n23,
+        this.n24 = n24;
+        this.n31 = n31;
+        this.n32 = n32;
+        this.n33 = n33,
+        this.n34 = n34;
+        this.n41 = n41;
+        this.n42 = n42;
+        this.n43 = n43,
+        this.n44 = n44;
+        return this;
+    },
+    //向量的乘法
+    multiplyVector4: function(v) {
+        var vx = v.x;
+        var vy = v.y;
+        var vz = v.z;
+        var vw = v.w;
+        v.x = this.n11 * vx + this.n21 * vy + this.n31 * vz + this.n41 * vw;
+        v.y = this.n12 * vx + this.n22 * vy + this.n32 * vz + this.n42 * vw;
+        v.z = this.n13 * vx + this.n23 * vy + this.n33 * vz + this.n43 * vw;
+        v.w = this.n14 * vx + this.n24 * vy + this.n34 * vz + this.n44 * vw;
+        return v;
+    }
+};
+Vector4 = function(x, y, z, w) {
+    this.x = x || 0;
+    this.y = y || 0;
+    this.z = z || 0;
+    this.w = w || 1;
+};
+function init() {
+    Points[0] = new Vector4(100, 100, 100, 1);
+    Points[1] = new Vector4(100, 100, -100, 1);
+    Points[2] = new Vector4( - 100, 100, -100, 1);
+    Points[3] = new Vector4( - 100, 100, 100, 1);
+    Points[4] = new Vector4(100, -100, 100, 1);
+    Points[5] = new Vector4(100, -100, -100, 1);
+    Points[6] = new Vector4( - 100, -100, -100, 1);
+    Points[7] = new Vector4( - 100, -100, 100, 1);
+}
+//这里用到另一个js框架，easel.js。比原来方便许多。
+function it() {
+    createjs.Ticker.setFPS(20);
+    createjs.Ticker.addListener(window);
+}
+var m4 = new Matrix4();
+var angle = 0;
+var currentAngle = 0;
+function transform() {
+    //首先把角度转化为js可以计算的。例如30度转为1/6PI.
+    angle = degToRad(currentAngle);
+    init();
+    //这里用到了。绕y轴，x，z坐标变化的一个公式。记住吧。我搞半天，没整明白为啥。
+    m4.n11 = Math.cos(angle);
+    m4.n13 = -Math.sin(angle);
+    m4.n31 = Math.sin(angle);
+    m4.n33 = Math.cos(angle); //
+    //m4.n11+=0.01;
+    //m4.n22+=0.01;
+    //m4.n33+=0.01;
+    //m4.n21+=0.01;
+    for (var i = 0; i < Points.length; i++) {
+        Points[i] = m4.multiplyVector4(Points[i]);
+    }
+
+    //绕y轴转完后，再绕z轴转，所以会出现偏转。立方体感觉更加真实。
+    m4 = new Matrix4();
+    m4.n11 = Math.cos(angle);
+    m4.n12 = -Math.sin(angle);
+    m4.n21 = Math.sin(angle);
+    m4.n22 = Math.cos(angle); //
+    for (var i = 0; i < Points.length; i++) {
+        Points[i] = m4.multiplyVector4(Points[i]);
+    }
+}
+function degToRad(angle) {
+    return angle / 180 * Math.PI;
+}
+//这就是要循环的方法。每次重新擦除然后重画，角度加一个固定的角度。
+function tick() {
+    cxt.clearRect( - tx, -ty, d.width, d.height);
+    transform();
+    drawRect();
+    currentAngle = currentAngle + 5;
+}
+it();
+</script>
+</body>
+</html>
